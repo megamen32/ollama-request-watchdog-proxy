@@ -1,0 +1,18 @@
+[Unit]
+Description=On-demand Ollama request watchdog proxy
+After=network-online.target ollama.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+Group=root
+ExecStart=/usr/local/sbin/ollama-request-watchdog-proxy
+Restart=always
+RestartSec=3
+Environment="OLLAMA_PROXY_HOST=127.0.0.1"
+Environment="OLLAMA_PROXY_PORT=11437"
+Environment="OLLAMA_TARGET_URL=http://127.0.0.1:11434"
+
+[Install]
+WantedBy=multi-user.target

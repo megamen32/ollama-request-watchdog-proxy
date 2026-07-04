@@ -1,0 +1,14 @@
+[Service]
+# How long to wait for Ollama's first byte before treating the request as sick.
+Environment="OLLAMA_PROXY_FIRST_BYTE_TIMEOUT_S=180"
+
+# Avoid restart storms.
+Environment="OLLAMA_PROXY_RESTART_COOLDOWN_S=120"
+Environment="OLLAMA_PROXY_RETRY_AFTER_RESTART_S=20"
+
+# Safety rail: never let an accidental huge context blow up your GPU.
+Environment="OLLAMA_PROXY_MAX_NUM_CTX=8192"
+Environment="OLLAMA_PROXY_ENFORCE_DEFAULT_NUM_CTX=1"
+
+# Optional per-model limits. Longest matching prefix wins.
+Environment="OLLAMA_PROXY_MODEL_CTX_LIMITS=qwen-fast=4096,qwen3:4b-instruct=4096,qwen3-coder:30b=4096"
