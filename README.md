@@ -26,6 +26,7 @@ This proxy is a small safety rail for exactly that mess.
 ## Features
 
 - **On-demand recovery**: restart `ollama.service` when the upstream is genuinely unavailable or times out before the first byte.
+- **Multiple Ollama instances**: set `OLLAMA_SERVICE=embedding-ollama.service` to restart exactly that systemd unit (the default is `ollama.service`).
 - **Context guard**: inject or clamp `options.num_ctx` for `/api/generate` and `/api/chat`.
 - **Per-model limits**: set tighter caps for heavy models and looser defaults for small ones.
 - **No restart storms**: cooldown between restarts.
@@ -64,6 +65,7 @@ The installer creates a systemd drop-in from `systemd/20-hardening.conf.example`
 Environment="OLLAMA_PROXY_FIRST_BYTE_TIMEOUT_S=180"
 Environment="OLLAMA_PROXY_RESTART_COOLDOWN_S=120"
 Environment="OLLAMA_PROXY_MAX_NUM_CTX=8192"
+Environment="OLLAMA_SERVICE=ollama.service"
 Environment="OLLAMA_PROXY_ENFORCE_DEFAULT_NUM_CTX=1"
 Environment="OLLAMA_PROXY_MODEL_CTX_LIMITS=qwen-fast=4096,qwen3:4b-instruct=4096,qwen3-coder:30b=4096"
 ```

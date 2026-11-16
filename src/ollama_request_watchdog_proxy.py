@@ -67,6 +67,11 @@ def service_exists():
     return r.returncode == 0
 
 def install_missing_ollama_unit():
+    # This fallback only knows how to create the default Ollama unit.
+    # Never install it when the caller configured a separate GPU/CPU instance.
+    if OLLAMA_SERVICE != 'ollama.service':
+        log(f'configured unit {OLLAMA_SERVICE!r} is missing; not installing ollama.service')
+        return False
     service_path = Path('/etc/systemd/system/ollama.service')
     if service_path.exists() or service_exists():
         return False
@@ -94,12 +99,12 @@ def restart_ollama(reason):
     try:
         if not service_exists():
             install_missing_ollama_unit()
-        r = run('systemctl restart ollama.service', timeout=90)
+        r = run(f'systemctl restart {OLLAMA_SERVICE}', timeout=90)
         if r.returncode != 0:
             log(f'restart failed rc={r.returncode} stdout={r.stdout[-1000:]} stderr={r.stderr[-1000:]}')
-            if 'Unit ollama.service not found' in (r.stdout + r.stderr):
+            if f'Unit {OLLAMA_SERVICE} not found' in (r.stdout + r.stderr):
                 install_missing_ollama_unit()
-            r2 = run('systemctl start ollama.service', timeout=90)
+            r2 = run(f'systemctl start {OLLAMA_SERVICE}', timeout=90)
             if r2.returncode != 0:
                 log(f'start failed rc={r2.returncode} stdout={r2.stdout[-1000:]} stderr={r2.stderr[-1000:]}')
                 return False
