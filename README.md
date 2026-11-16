@@ -1,8 +1,22 @@
-# Ollama Request Watchdog Proxy
+<p align="center">
+  <img src="assets/demo-recovery.svg" alt="Ollama Request Watchdog Proxy: healthy inference and recovery" width="100%">
+</p>
 
-![Ollama Request Watchdog Proxy demo](assets/demo-recovery.svg)
+<h1 align="center">Ollama Request Watchdog Proxy</h1>
 
-**A tiny systemd-ready proxy that keeps local Ollama apps from turning one bad request into a dead service.**
+<p align="center"><strong>Recover failed requests. Bound context. Keep Ollama responsive.</strong></p>
+
+<p align="center">
+  <a href="README.md">English</a> · <a href="README.ru.md">Русский</a>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-standard%20library-3776AB?style=flat-square" alt="Python standard library">
+  <img src="https://img.shields.io/badge/License-MIT-64748B?style=flat-square" alt="MIT license">
+  <img src="https://img.shields.io/badge/Linux-systemd-0F766E?style=flat-square" alt="Linux systemd">
+</p>
+
+A small, dependency-free, systemd-ready HTTP proxy that helps local Ollama apps recover from upstream failures without triggering restart storms.
 
 Put it between LiteLLM / Open WebUI / your app and Ollama:
 
@@ -33,6 +47,25 @@ This proxy is a small safety rail for exactly that mess.
 - **Client disconnect safe**: `BrokenPipeError` / `ConnectionResetError` are logged as client closes, not treated as Ollama failures.
 - **Real health endpoint**: `/health` checks Ollama `/api/tags` instead of returning fake green.
 - **No Python dependencies**: standard library only.
+
+## Works with Ollama Model Queue
+
+**[Ollama Model Queue](https://github.com/megamen32/ollama-model-queue-proxy)** schedules requests by model to avoid expensive reloads. **Request Watchdog** handles availability, context guards and recovery. Each works independently, and neither requires LiteLLM.
+
+```text
+App / optional LiteLLM
+           |
+           v
+Model Queue  :11437  | model-affine scheduling
+           |
+           v
+Watchdog     :11436  | context limits + recovery
+           |
+           v
+Ollama       :11434  | inference
+```
+
+See the **[two-proxy Linux/systemd guide](https://github.com/megamen32/ollama-model-queue-proxy/blob/main/docs/with-watchdog.md)** for exact configuration and verification. Both proxies can otherwise bind to `11437` by default. Keep them on different ports and point the queue upstream at the watchdog, never the other way around.
 
 ## Install
 
